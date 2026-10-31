@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/* shadcn/ui semantic tokens mapped to Farano's existing local navy/teal/gold palette. */
+:root {
+  --background: #f6f3ee;
+  --foreground: #22384b;
+  --card: #ffffff;
+  --card-foreground: #22384b;
+  --popover: #ffffff;
+  --popover-foreground: #22384b;
+  --primary: #1c3d5a;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2f5;
+  --secondary-foreground: #22384b;
+  --muted: #eef2f5;
+  --muted-foreground: #4a5d6e;
+  --accent: #e8f4f5;
+  --accent-foreground: #1d6a70;
+  --destructive: #b3372f;
+  --border: #dfe6ec;
+  --input: #dfe6ec;
+  --ring: #1d6a70;
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+
+
+/* Vazirmatn (variable, weights 100-900, SIL OFL) is served by the ASP.NET Core host from
+   wwwroot/fonts/vazirmatn. No font, icon or stylesheet is loaded from a CDN. */
+@font-face {
+  font-family: Vazirmatn;
+  src: url('/fonts/vazirmatn/Vazirmatn-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The ForeignTrade palette, taken from the official logo: deep navy, teal and gold. */
+@theme {
+  --font-sans: Vazirmatn, Tahoma, 'Segoe UI', sans-serif;
+
+  --color-navy: #1c3d5a;
+  --color-navy-deep: #142f47;
+  --color-gold: #d9a24b;
+  --color-gold-deep: #b8842e;
+  --color-teal: #2f8d93;
+  /* Teal dark enough for text and icons on white (WCAG AA). */
+  --color-teal-deep: #1d6a70;
+  --color-teal-soft: #e8f4f5;
+  --color-ink: #22384b;
+  --color-muted: #64798b;
+  /* Secondary text: AA on white, sand and cool surfaces. */
+  --color-sub: #4a5d6e;
+  --color-sand: #f6f3ee;
+  --color-cool: #eef2f5;
+  --color-line: #dfe6ec;
+  --color-danger: #b3372f;
+  --color-danger-soft: #fbeceb;
+  --color-warning: #8a6116;
+  --color-warning-soft: #fdf4e3;
+  --color-success: #256b4f;
+  --color-success-soft: #e9f4ee;
+
+  /* The selection screens (the approved reference): headline navy, selection blue, period panel
+     tint, teal tick and the orange call to action. */
+  --color-title: #162f49;
+  --color-night: #10263d;
+  --color-pick: #63afe3;
+  --color-pick-soft: #eef9fe;
+  --color-period: #e7f0fc;
+  --color-period-line: #b9d1ee;
+  --color-tick: #1593a6;
+  --color-cta: #fab14c;
+  --color-cta-soft: #ffe4b7;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    line-height: 1.7;
+    font-optical-sizing: auto;
+  }
+
+  body {
+    background-color: var(--color-sand);
+    color: var(--color-ink);
+    min-height: 100vh;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-teal-deep);
+    outline-offset: 2px;
+  }
+
+  /* On the dark navy header the teal ring is invisible: use the gold accent there. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-gold);
+  }
+}
+
+@layer components {
+  /* The light backdrop of the selection screens: a cool wash, a very faint geometric grid and a
+     soft glow at the top. The ridges, glow lines and chart bars are an inline SVG
+     (SelectionBackdrop); no image file, no animation. */
+  .selection-backdrop {
+    background-color: #eef3fa;
+    background-image:
+      radial-gradient(60rem 18rem at 50% 0%, rgb(255 255 255 / 0.9), transparent 70%),
+      repeating-linear-gradient(0deg, rgb(28 61 90 / 0.03) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgb(28 61 90 / 0.03) 0 1px, transparent 1px 40px),
+      linear-gradient(180deg, #f7faff 0%, #e9f0f9 55%, #eef3fa 100%);
+  }
+}
