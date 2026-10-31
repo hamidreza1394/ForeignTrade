@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
-import type { FiscalPeriodStatus } from '../api/types';
-import type { YearEntry, FiscalYear } from '../lib/fiscalYears';
+import type { OperationalPeriodStatus } from '../api/types';
+import type { YearEntry, PeriodYear } from '../lib/periodYears';
 import { Button } from './ui/FaranouButton';
 import { BuildingIcon, CalendarIcon, ChevronLeftIcon } from './ui/icons';
 
 type SelectionFooterProps = {
-  year: FiscalYear | undefined;
+  year: PeriodYear | undefined;
   /** The chosen company and period; present only when it can be entered. */
   entry: YearEntry | undefined;
   submitting: boolean;
@@ -14,13 +14,13 @@ type SelectionFooterProps = {
   onCancel?: (() => void) | undefined;
 };
 
-const dotClass: Record<FiscalPeriodStatus, string> = {
+const dotClass: Record<OperationalPeriodStatus, string> = {
   Open: 'bg-emerald-400',
   Closed: 'bg-slate-300',
   Archived: 'bg-slate-400',
 };
 
-const statusLabel: Record<FiscalPeriodStatus, string> = {
+const statusLabel: Record<OperationalPeriodStatus, string> = {
   Open: 'فعال',
   Closed: 'بسته شده',
   Archived: 'بایگانی',
@@ -98,7 +98,7 @@ export function SelectionFooter({ year, entry, submitting, onEnter, onCancel }: 
               {entry.period.accessMode === 'readOnly' ? <span> (فقط مشاهده)</span> : null}
             </>
           ) : (
-            <span>{year ? 'یک شرکت را انتخاب کنید.' : 'دوره مالی و شرکت هنوز انتخاب نشده است.'}</span>
+            <span>{year ? 'یک شرکت را انتخاب کنید.' : 'دوره و شرکت هنوز انتخاب نشده است.'}</span>
           )}
         </p>
 
@@ -140,7 +140,7 @@ export function SelectionFooter({ year, entry, submitting, onEnter, onCancel }: 
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-3 lg:flex-nowrap lg:justify-center">
-          <Summary label="دوره مالی انتخاب‌شده" icon="period">
+          <Summary label="دوره انتخاب‌شده" icon="period">
             {entry && year ? (
               <>
                 <span className="truncate">{year.title}</span>
