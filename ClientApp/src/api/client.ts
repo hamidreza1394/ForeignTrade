@@ -157,7 +157,7 @@ export async function getWorkContext(signal?: AbortSignal): Promise<WorkContext>
   return parseWorkContext(await getJson('/context', signal));
 }
 
-/** Chooses a company and one of its fiscal periods; the server validates the pair again. */
+/** Chooses a company and one of its operational periods; the server validates the pair again. */
 export async function selectWorkContext(companyId: string, periodId: string): Promise<SelectedContext> {
   const response = await sendJson('POST', '/context', { companyId, periodId });
   return parseSelectedContextResponse(await response.json());
