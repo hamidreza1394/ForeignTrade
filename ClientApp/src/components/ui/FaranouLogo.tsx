@@ -1,0 +1,1 @@
+export { FaranouLogo } from './ForeignTradeLogo';
