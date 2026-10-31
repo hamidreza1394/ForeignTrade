@@ -15,12 +15,33 @@ public static class WorkContextEndpoints
 
     public static RouteGroupBuilder MapWorkContextEndpoints(this RouteGroupBuilder api)
     {
+        api.MapGet("/companies", GetCompaniesAsync).RequireAuthorization();
         api.MapGet("/context", GetContextAsync).RequireAuthorization();
         api.MapPost("/context", SelectContextAsync).RequireAuthorization();
         api.MapGet("/companies/{companyId:guid}/overview", GetCompanyOverviewAsync).RequireAuthorization();
         return api;
     }
 
+
+
+    private static async Task<IResult> GetCompaniesAsync(
+        ClaimsPrincipal principal, UserManager<ApplicationUser> users,
+        ForeignTradeDbContext db, CancellationToken ct)
+    {
+        var user = await users.GetUserAsync(principal);
+        if (user is null || !user.IsActive) return Results.Unauthorized();
+
+        var companies = await (from membership in db.UserCompanyMemberships.AsNoTracking()
+            join company in db.Companies.AsNoTracking() on membership.CompanyId equals company.Id
+            join tenant in db.Tenants.AsNoTracking() on membership.TenantId equals tenant.Id
+            where membership.UserId == user.Id && membership.IsActive && company.IsActive &&
+                  tenant.IsActive && company.TenantId == membership.TenantId
+            orderby company.Name
+            select new CompanySummary(company.Id, company.Name, company.NationalId, membership.RoleName))
+            .ToListAsync(ct);
+
+        return Results.Ok(companies);
+    }
 
     private static async Task<IResult> GetCompanyOverviewAsync(
         Guid companyId, ClaimsPrincipal principal, UserManager<ApplicationUser> users,
