@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getCompanyOverview } from '../api/client';
-import type { CompanyOverview, FiscalPeriodStatus } from '../api/types';
+import type { CompanyOverview, OperationalPeriodStatus } from '../api/types';
 import { formatPersianDate } from '../lib/date';
 import { EmptyState, ErrorState, LoadingState } from './Feedback';
 import { Card } from './ui/card';
@@ -10,13 +10,13 @@ type OverviewState =
   | { kind: 'error'; message: string }
   | { kind: 'ready'; overview: CompanyOverview };
 
-const statusLabels: Record<FiscalPeriodStatus, string> = {
+const statusLabels: Record<OperationalPeriodStatus, string> = {
   Open: 'باز',
   Closed: 'بسته',
   Archived: 'بایگانی',
 };
 
-const statusStyles: Record<FiscalPeriodStatus, string> = {
+const statusStyles: Record<OperationalPeriodStatus, string> = {
   Open: 'bg-success-soft text-success',
   Closed: 'bg-warning-soft text-warning',
   Archived: 'bg-cool text-muted',
@@ -64,7 +64,7 @@ export function CompanyOverviewPanel({ companyId, currentPeriodId, onUnauthentic
     return <ErrorState message={state.message} onRetry={() => setAttempt((value) => value + 1)} />;
   }
 
-  const { company, fiscalPeriods } = state.overview;
+  const { company, periods } = state.overview;
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,17 +94,17 @@ export function CompanyOverviewPanel({ companyId, currentPeriodId, onUnauthentic
           دوره‌های مالی
         </h2>
 
-        {fiscalPeriods.length === 0 ? (
+        {periods.length === 0 ? (
           <div className="mt-4">
-            <EmptyState title="هنوز دوره مالی برای این شرکت ثبت نشده است.">
-              پس از تعریف دوره مالی، فهرست آن در این بخش نمایش داده می‌شود.
+            <EmptyState title="هنوز دوره برای این شرکت ثبت نشده است.">
+              پس از تعریف دوره، فهرست آن در این بخش نمایش داده می‌شود.
             </EmptyState>
           </div>
         ) : (
           <>
           {/* Small screens: one card per period instead of a horizontally scrolling table. */}
           <ul className="mt-4 flex flex-col gap-3 sm:hidden" aria-label="دوره‌های مالی">
-            {fiscalPeriods.map((period) => (
+            {periods.map((period) => (
               <li key={period.id} className="rounded-xl border border-line p-4 text-sm">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">
@@ -133,7 +133,7 @@ export function CompanyOverviewPanel({ companyId, currentPeriodId, onUnauthentic
                 </tr>
               </thead>
               <tbody>
-                {fiscalPeriods.map((period) => (
+                {periods.map((period) => (
                   <tr key={period.id} className="border-b border-line/70 last:border-0">
                     <td className="py-3 pe-4 font-medium">
                       {period.title}
