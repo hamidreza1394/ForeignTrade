@@ -64,7 +64,7 @@ public static class WorkContextEndpoints
             select new { Company = company, membership.RoleName }).ToListAsync(ct);
 
         if (memberships.Count == 0)
-            return Results.Ok(new WorkContextResponse(null, "noCompany", null, null, []));
+            return Results.Ok(new WorkContextResponse(null, "noCompany", null, []));
 
         var companyIds = memberships.Select(x => x.Company.Id).ToArray();
         var periods = await (from period in db.OperationalPeriods.AsNoTracking()
@@ -91,7 +91,7 @@ public static class WorkContextEndpoints
             eligible.Length == 1 ? "directEntry" :
             eligible.Length == 0 ? "noEligiblePeriod" : "selectionRequired";
         return Results.Ok(new WorkContextResponse(current, entry,
-            eligible.Length == 1 ? eligible[0] : null, null, companies));
+            eligible.Length == 1 ? eligible[0] : null, companies));
     }
 
     private static async Task<IResult> SelectContextAsync(
@@ -159,5 +159,5 @@ public static class WorkContextEndpoints
     public sealed record CompanyChoice(Guid Id, string Name, string? NationalId, string RoleName, IReadOnlyList<PeriodChoice> Periods, IReadOnlyList<string> RelationshipTypes);
     public sealed record DirectSelection(Guid CompanyId, Guid PeriodId);
     public sealed record SelectedContext(CompanySummary Company, PeriodChoice Period);
-    public sealed record WorkContextResponse(SelectedContext? Current, string Entry, DirectSelection? DirectSelection, Guid? DefaultCompanyId, IReadOnlyList<CompanyChoice> Companies);
+    public sealed record WorkContextResponse(SelectedContext? Current, string Entry, DirectSelection? DirectSelection, IReadOnlyList<CompanyChoice> Companies);
 }
