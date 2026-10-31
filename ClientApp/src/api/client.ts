@@ -118,6 +118,29 @@ async function sendJson(method: 'POST' | 'DELETE', path: string, body?: unknown)
   return response;
 }
 
+/** Authenticates the user; the server issues an HttpOnly session cookie. */
+export async function login(username: string, password: string): Promise<void> {
+  const token = parseAntiforgeryToken(await getJson('/antiforgery/token'));
+  const response = await fetch(`${apiBase}/auth/login`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      [token.headerName]: token.requestToken,
+    },
+    body: JSON.stringify({ username, password }),
+    cache: 'no-store',
+  });
+  if (response.status === 401 || response.status === 400) {
+    throw new ApiError(response.status, 'نام کاربری یا گذرواژه صحیح نیست.');
+  }
+  if (response.status === 429) {
+    throw new ApiError(response.status, 'تعداد تلاش‌های ورود بیش از حد مجاز است. کمی بعد دوباره تلاش کنید.');
+  }
+  await ensureSuccess(response);
+}
+
 export async function getSession(signal?: AbortSignal): Promise<Session> {
   return parseSession(await getJson('/session', signal));
 }
