@@ -24,7 +24,7 @@ const statusStyles: Record<OperationalPeriodStatus, string> = {
 
 type CompanyOverviewPanelProps = {
   companyId: string;
-  /** The fiscal period the user entered; it is marked in the list. */
+  /** The operational period the user entered; it is marked in the list. */
   currentPeriodId: string;
   onUnauthenticated: (error: unknown) => boolean;
 };
@@ -158,11 +158,10 @@ export function CompanyOverviewPanel({ companyId, currentPeriodId, onUnauthentic
 
       <section aria-labelledby="modules-heading" className="rounded-2xl border border-gold/40 bg-warning-soft p-5 text-sm">
         <h2 id="modules-heading" className="font-bold text-warning">
-          وضعیت ماژول‌های حسابداری
+          وضعیت قابلیت‌های بازرگانی
         </h2>
         <p className="mt-2 text-ink">
-          اسناد حسابداری، سرفصل حساب‌ها و گزارش‌های مالی هنوز پیاده‌سازی نشده‌اند؛ به همین دلیل هیچ آمار مالی در این
-          داشبورد نمایش داده نمی‌شود.
+          پرونده‌های واردات، گردش‌های کاری و گزارش‌های بازرگانی در مراحل بعدی بر اساس پروپوزال نسخه ۱.۱ به این محیط افزوده می‌شوند.
         </p>
       </section>
     </div>
