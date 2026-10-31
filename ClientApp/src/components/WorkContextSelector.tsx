@@ -18,7 +18,7 @@ import { SelectionFooter } from './SelectionFooter';
 import { SelectionLayout } from './SelectionLayout';
 import { Alert } from './ui/Alert';
 import { Badge } from './ui/Badge';
-import { Button } from './ui/FaranouButton';
+import { Button } from './ui/ForeignTradeButton';
 import { ChoiceCard } from './ui/ChoiceCard';
 import { BuildingIcon, CalendarIcon, EyeIcon, InfoIcon, LockIcon, SearchIcon, UsersIcon } from './ui/icons';
 
@@ -37,7 +37,7 @@ const relationshipLabels: Record<CompanyRelationshipType, string> = {
   unknown: 'نوع رابطه نامشخص',
 };
 
-/** The badge of a fiscal year in the period list. */
+/** The badge of an operational period group in the period list. */
 const yearBadges: Record<OperationalPeriodStatus, { label: string; className: string }> = {
   Open: { label: 'فعال', className: 'bg-[#dcf4e8] text-success' },
   Closed: { label: 'بسته شده', className: 'bg-[#e1e7f0] text-sub' },
@@ -278,7 +278,7 @@ function CompanyRow({
 }
 
 /**
- * Entering the working environment: the fiscal year first (right panel), then one of the
+ * Entering the working environment: the period group first (right panel), then one of the
  * companies the user may enter in that year (left panel, one company per row). The server decides
  * which choices exist and which can be entered; the screen only presents them, groups periods
  * with the same dates into years, and sends the (company, period) pair back, where the server
