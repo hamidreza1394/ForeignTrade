@@ -1,0 +1,28 @@
+# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+TestResults/
+artifacts/
+publish/
+
+# Node
+**/node_modules/
+**/dist/
+**/.vite/
+ClientApp/package-lock.json
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+**/secrets.json
+**/appsettings.*.local.json
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
