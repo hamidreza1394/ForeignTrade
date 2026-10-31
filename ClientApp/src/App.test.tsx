@@ -385,15 +385,13 @@ describe('App', () => {
     expect(fetchMock.mock.calls.length).toBeGreaterThan(callsBeforeRetry);
   });
 
-  it('sends an expired session to the existing sign-in page', async () => {
+  it('shows the in-app sign-in form when the session has expired', async () => {
     stubApi({
       'GET /api/v1/session': { status: 401 },
       'GET /api/v1/context': { status: 401 },
     });
     render(<App />);
-
-    expect(await screen.findByText('در حال انتقال به صفحه ورود…')).toBeInTheDocument();
-    expect(navigate).toHaveBeenCalledWith('/Account/Login?ReturnUrl=%2Fapp%2F');
+    expect(await screen.findByRole('heading', { name: 'ورود به سامانه' })).toBeInTheDocument();
   });
 
   it('sends the user to the sign-in page when the session ends while choosing', async () => {
@@ -404,14 +402,13 @@ describe('App', () => {
       'GET /api/v1/context': { status: 200, body: contextBody({ companies: [companyA, companyB] }) },
       'POST /api/v1/context': { status: 401 },
     });
-    const navigate = vi.fn();
 
     render(<App />);
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     await userEvent.click(screen.getByRole('button', { name: /ورود به محیط کاری/ }));
 
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/Account/Login?ReturnUrl=%2Fapp%2F'));
+    expect(await screen.findByRole('heading', { name: 'ورود به سامانه' })).toBeInTheDocument();
   });
 
   it('signs out from the working environment', async () => {
@@ -422,7 +419,6 @@ describe('App', () => {
       'GET /api/v1/companies/a/overview': { status: 200, body: overviewA },
       'POST /api/v1/session/logout': { status: 204 },
     });
-    const navigate = vi.fn();
 
     render(<App />);
     await userEvent.click(await screen.findByRole('button', { name: 'خروج' }));
