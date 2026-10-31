@@ -14,7 +14,7 @@ public static class AuthEndpoints
         api.MapGet("/antiforgery/token", (HttpContext context, IAntiforgery antiforgery) =>
         {
             var tokens = antiforgery.GetAndStoreTokens(context);
-            return Results.Ok(new { headerName = antiforgery.Options.HeaderName, requestToken = tokens.RequestToken });
+            return Results.Ok(new { headerName = "X-XSRF-TOKEN", requestToken = tokens.RequestToken });
         }).AllowAnonymous();
 
         api.MapPost("/auth/login", LoginAsync).AllowAnonymous().RequireRateLimiting("login");
