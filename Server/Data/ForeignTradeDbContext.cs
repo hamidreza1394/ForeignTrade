@@ -55,7 +55,7 @@ public sealed class ForeignTradeDbContext(DbContextOptions<ForeignTradeDbContext
             entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(24);
             entity.Property(x => x.RowVersion).IsRowVersion();
             entity.HasOne<Tenant>().WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<Company>().WithMany().HasForeignKey(x => x.CompanyId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Company>().WithMany().HasForeignKey(x => new { x.TenantId, x.CompanyId }).HasPrincipalKey(x => new { x.TenantId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(x => new { x.TenantId, x.CompanyId, x.StartDate, x.EndDate });
             entity.ToTable(t => t.HasCheckConstraint("CK_OperationalPeriods_DateRange", "[StartDate] <= [EndDate]"));
         });
