@@ -12,7 +12,6 @@ publish/
 **/node_modules/
 **/dist/
 **/.vite/
-ClientApp/package-lock.json
 
 # Local configuration and secrets
 .env
