@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { login } from '../api/client';
-import { FaranouLogo } from './ui/FaranouLogo';
+import { ForeignTradeLogo } from './ui/ForeignTradeLogo';
 
 export function LoginPage({ onSuccess }: { onSuccess: () => void }) {
   const [username, setUsername] = useState('');
@@ -30,7 +30,7 @@ export function LoginPage({ onSuccess }: { onSuccess: () => void }) {
         <section className="relative hidden overflow-hidden bg-[#10243d] px-12 py-14 text-white lg:flex lg:flex-col lg:justify-between">
           <div className="absolute -left-24 -top-24 size-96 rounded-full border border-white/10" />
           <div className="absolute -bottom-40 -right-28 size-[34rem] rounded-full border border-[#d5ad63]/20" />
-          <FaranouLogo size={44} />
+          <ForeignTradeLogo size={44} />
           <div className="relative max-w-xl">
             <p className="mb-5 text-sm font-semibold tracking-wide text-[#e2bd7c]">سامانه یکپارچه بازرگانی خارجی</p>
             <h1 className="text-4xl font-extrabold leading-[1.7]">مدیریت هوشمند فرآیندهای بازرگانی و واردات</h1>
@@ -41,7 +41,7 @@ export function LoginPage({ onSuccess }: { onSuccess: () => void }) {
 
         <section className="flex items-center justify-center px-5 py-12 sm:px-10">
           <div className="w-full max-w-md">
-            <div className="mb-10 lg:hidden"><FaranouLogo size={42} /></div>
+            <div className="mb-10 lg:hidden"><ForeignTradeLogo size={42} /></div>
             <div className="mb-8">
               <p className="text-sm font-semibold text-[#a47a37]">خوش آمدید</p>
               <h2 className="mt-2 text-3xl font-extrabold">ورود به سامانه</h2>
