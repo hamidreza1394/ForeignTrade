@@ -16,7 +16,7 @@ public static class AuthEndpoints
             return Results.Ok(new { headerName = antiforgery.Options.HeaderName, requestToken = tokens.RequestToken });
         }).AllowAnonymous();
 
-        api.MapPost("/auth/login", LoginAsync).AllowAnonymous();
+        api.MapPost("/auth/login", LoginAsync).AllowAnonymous().RequireRateLimiting("login");
         api.MapGet("/session", GetSessionAsync).RequireAuthorization();
         api.MapPost("/session/logout", LogoutAsync).RequireAuthorization();
         return api;
