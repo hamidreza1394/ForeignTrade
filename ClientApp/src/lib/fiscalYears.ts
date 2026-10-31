@@ -1,4 +1,4 @@
-import type { CompanyChoice, FiscalPeriodChoice, FiscalPeriodStatus, SelectedContext } from '../api/types';
+import type { CompanyChoice, OperationalPeriodChoice, OperationalPeriodStatus, SelectedContext } from '../api/types';
 import { formatPersianDate } from './date';
 
 // The selection screen is organised by fiscal year first (the year decides which companies are
@@ -9,10 +9,10 @@ import { formatPersianDate } from './date';
 /** One company's period inside a fiscal year. */
 export type YearEntry = {
   company: CompanyChoice;
-  period: FiscalPeriodChoice;
+  period: OperationalPeriodChoice;
 };
 
-export type FiscalYear = {
+export type PeriodYear = {
   /** `startDate|endDate` of the shared dates. */
   key: string;
   title: string;
@@ -25,7 +25,7 @@ export type FiscalYear = {
   /** True when at least one company can be entered in this year. */
   isEnterable: boolean;
   /** The status shown for the year (see `yearStatus`). */
-  status: FiscalPeriodStatus;
+  status: OperationalPeriodStatus;
 };
 
 /**
@@ -33,7 +33,7 @@ export type FiscalYear = {
  * is open, closed when the enterable ones are all closed, and for a year nobody can enter the
  * status the server reported (archived).
  */
-export function yearStatus(entries: readonly YearEntry[]): FiscalPeriodStatus {
+export function yearStatus(entries: readonly YearEntry[]): OperationalPeriodStatus {
   const enterable = entries.filter((entry) => entry.period.isSelectable);
   if (enterable.length === 0) {
     return entries.some((entry) => entry.period.status === 'Archived') ? 'Archived' : (entries[0]?.period.status ?? 'Archived');
@@ -52,7 +52,7 @@ export function formatCount(value: number): string {
   return new Intl.NumberFormat('fa-IR', { useGrouping: false }).format(value);
 }
 
-function titleOf(startDate: string, endDate: string, periods: FiscalPeriodChoice[]): string {
+function titleOf(startDate: string, endDate: string, periods: OperationalPeriodChoice[]): string {
   const first = periods[0]?.title ?? '';
   if (first !== '' && periods.every((period) => period.title === first)) {
     return first;
@@ -61,11 +61,11 @@ function titleOf(startDate: string, endDate: string, periods: FiscalPeriodChoice
 }
 
 /** Groups the periods of all companies by their dates; the newest year comes first. */
-export function groupFiscalYears(companies: readonly CompanyChoice[]): FiscalYear[] {
+export function groupPeriodYears(companies: readonly CompanyChoice[]): PeriodYear[] {
   const groups = new Map<string, { startDate: string; endDate: string; entries: Map<string, YearEntry> }>();
 
   for (const company of companies) {
-    for (const period of company.fiscalPeriods) {
+    for (const period of company.periods) {
       const key = yearKey(period);
       let group = groups.get(key);
       if (!group) {
@@ -81,7 +81,7 @@ export function groupFiscalYears(companies: readonly CompanyChoice[]): FiscalYea
     }
   }
 
-  const years = [...groups.entries()].map(([key, group]): FiscalYear => {
+  const years = [...groups.entries()].map(([key, group]): PeriodYear => {
     const entries = [...group.entries.values()].sort((a, b) => collator.compare(a.company.name, b.company.name));
     const enterableCount = entries.filter((entry) => entry.period.isSelectable).length;
     return {
@@ -103,18 +103,18 @@ export function groupFiscalYears(companies: readonly CompanyChoice[]): FiscalYea
 /** Companies that cannot be entered in any year (no period, or only unusable ones). */
 export function companiesWithoutEnterablePeriod(companies: readonly CompanyChoice[]): CompanyChoice[] {
   return companies
-    .filter((company) => !company.fiscalPeriods.some((period) => period.isSelectable))
+    .filter((company) => !company.periods.some((period) => period.isSelectable))
     .sort((a, b) => collator.compare(a.name, b.name));
 }
 
 export type Selection = { yearKey: string | null; companyId: string | null };
 
-function singleEnterableCompany(year: FiscalYear | undefined): string | null {
+function singleEnterableCompany(year: PeriodYear | undefined): string | null {
   const enterable = year?.entries.filter((entry) => entry.period.isSelectable) ?? [];
   return enterable.length === 1 ? (enterable[0]?.company.id ?? null) : null;
 }
 
-function isEnterableIn(year: FiscalYear | undefined, companyId: string | null): boolean {
+function isEnterableIn(year: PeriodYear | undefined, companyId: string | null): boolean {
   return Boolean(year?.entries.some((entry) => entry.company.id === companyId && entry.period.isSelectable));
 }
 
@@ -127,9 +127,9 @@ function isEnterableIn(year: FiscalYear | undefined, companyId: string | null): 
  * otherwise it is selected only when unambiguous. Previous context is preserved only during an
  * explicit context-switch flow, never inferred on a new sign-in.
  */
-export function initialSelection(years: readonly FiscalYear[], current: SelectedContext | null, defaultCompanyId: string | null = null): Selection {
+export function initialSelection(years: readonly PeriodYear[], current: SelectedContext | null, defaultCompanyId: string | null = null): Selection {
   const enterableYears = years.filter((year) => year.isEnterable);
-  const currentYear = current ? years.find((year) => year.key === yearKey(current.fiscalPeriod)) : undefined;
+  const currentYear = current ? years.find((year) => year.key === yearKey(current.period)) : undefined;
 
   const year = currentYear?.isEnterable
     ? currentYear
@@ -150,7 +150,7 @@ export function initialSelection(years: readonly FiscalYear[], current: Selected
  * Changing the year keeps the company only if it can be entered in the new year; otherwise it
  * is cleared (or pre-selected when it is the only enterable one).
  */
-export function selectYear(years: readonly FiscalYear[], previous: Selection, nextKey: string): Selection {
+export function selectYear(years: readonly PeriodYear[], previous: Selection, nextKey: string): Selection {
   const year = years.find((item) => item.key === nextKey);
   if (!year?.isEnterable) {
     return previous;
@@ -160,7 +160,7 @@ export function selectYear(years: readonly FiscalYear[], previous: Selection, ne
 }
 
 /** The entry that the selection points at, only if it can be entered. */
-export function selectedEntry(years: readonly FiscalYear[], selection: Selection): YearEntry | undefined {
+export function selectedEntry(years: readonly PeriodYear[], selection: Selection): YearEntry | undefined {
   const year = years.find((item) => item.key === selection.yearKey);
   return year?.entries.find((entry) => entry.company.id === selection.companyId && entry.period.isSelectable);
 }
