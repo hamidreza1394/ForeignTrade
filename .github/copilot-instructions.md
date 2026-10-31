@@ -1,0 +1,3 @@
+# GitHub Copilot Instructions — ForeignTrade
+
+Follow `AGENTS.md` as the canonical engineering contract. Read architecture and ADR documents before coding. Treat proposal v1.1 and approved user decisions as requirements sources. Do not import accounting-specific domain assumptions from Farano. Enforce authentication, company membership, tenant isolation, and operational-period access on the server. Never trust tenant/company/period IDs from the browser. Keep Persian RTL, accessibility, local assets, tests, and documentation. Licensing is a future server-side integration point and must remain inactive until approved. Never add secrets or perform destructive database changes.
