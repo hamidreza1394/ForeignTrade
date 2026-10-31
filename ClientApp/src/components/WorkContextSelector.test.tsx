@@ -50,10 +50,10 @@ describe('WorkContextSelector', () => {
   it('shows the title, the guidance and real counts, and claims no group relation', () => {
     renderSelector(twoYears());
 
-    expect(screen.getByRole('heading', { level: 1, name: 'بازرگانی خارجی - دوره مالی' })).toBeInTheDocument();
-    expect(screen.getByText('برای ورود به محیط کاری، ابتدا دوره مالی و سپس شرکت موردنظر را انتخاب کنید.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'بازرگانی خارجی - دوره' })).toBeInTheDocument();
+    expect(screen.getByText('برای ورود به محیط کاری، ابتدا دوره و سپس شرکت موردنظر را انتخاب کنید.')).toBeInTheDocument();
     expect(screen.getByText('شما به ۲ شرکت دسترسی دارید')).toBeInTheDocument();
-    expect(screen.getByText('۲ دوره مالی')).toBeInTheDocument();
+    expect(screen.getByText('۲ دوره')).toBeInTheDocument();
     expect(screen.queryByText(/همگروه|هلدینگ|زیرمجموعه|شرکت مادر/)).not.toBeInTheDocument();
   });
 
@@ -111,7 +111,7 @@ describe('WorkContextSelector', () => {
 
   it('filters the years by title or Jalali date, accepting Persian digits', async () => {
     renderSelector(twoYears());
-    const search = screen.getByRole('searchbox', { name: 'جست‌وجوی دوره مالی بر اساس عنوان یا تاریخ' });
+    const search = screen.getByRole('searchbox', { name: 'جست‌وجوی دوره بر اساس عنوان یا تاریخ' });
     expect(search).toHaveAttribute('placeholder', 'جستجو در دوره‌های مالی...');
     const years = () => within(screen.getByRole('radiogroup', { name: 'دوره‌های مالی' })).getAllByRole('radio');
 
@@ -126,7 +126,7 @@ describe('WorkContextSelector', () => {
 
     await userEvent.clear(search);
     await userEvent.type(search, 'ناموجود');
-    expect(screen.getByText('دوره مالی با این مشخصات پیدا نشد.')).toBeInTheDocument();
+    expect(screen.getByText('دوره با این مشخصات پیدا نشد.')).toBeInTheDocument();
   });
 
   it('shows the companies of the chosen year with their own status, and a disabled one with the reason', async () => {
@@ -213,7 +213,7 @@ describe('WorkContextSelector', () => {
   it('starts at the current choice when the user came to change it', () => {
     const context = twoYears() as unknown as WorkContext;
     const a = context.companies[0] as CompanyChoice;
-    renderSelector(context, { current: selected(a, a.fiscalPeriods[1]) as unknown as SelectedContext, onCancel: vi.fn() });
+    renderSelector(context, { current: selected(a, a.periods[1]) as unknown as SelectedContext, onCancel: vi.fn() });
 
     expect(screen.getByRole('radio', { name: /سال ۱۴۰۴/ })).toBeChecked();
     expect(screen.getByRole('radio', { name: /شرکت الف/ })).toBeChecked();
@@ -328,7 +328,7 @@ describe('WorkContextSelector', () => {
     unmount();
 
     renderSelector(contextBody({ companies: [company('z', 'شرکت بدون دوره', [])] }));
-    expect(screen.queryByText(/دوره مالی قابل ورود برای این شرکت‌ها وجود ندارد/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/دوره قابل ورود برای این شرکت‌ها وجود ندارد/)).not.toBeInTheDocument();
   });
 
   it('sends the chosen pair once, even when the button is clicked twice quickly, and shows the entering state', async () => {
@@ -338,7 +338,7 @@ describe('WorkContextSelector', () => {
       ...antiforgeryRoute,
       'POST /api/v1/context': () => {
         posts += 1;
-        return { status: 200, body: { company: { id: 'a', name: 'شرکت الف', nationalId: null, roleName: 'حسابدار' }, fiscalPeriod: period('a5', 'سال ۱۴۰۵', y1405) } };
+        return { status: 200, body: { company: { id: 'a', name: 'شرکت الف', nationalId: null, roleName: 'حسابدار' }, period: period('a5', 'سال ۱۴۰۵', y1405) } };
       },
     });
     renderSelector(twoYears(), { onSelected });
@@ -350,7 +350,7 @@ describe('WorkContextSelector', () => {
     await waitFor(() => expect(onSelected).toHaveBeenCalledOnce());
     expect(posts).toBe(1);
     const post = fetchMock.mock.calls.find((call) => (call[1] as RequestInit | undefined)?.method === 'POST');
-    expect(JSON.parse((post?.[1] as RequestInit).body as string)).toEqual({ companyId: 'a', fiscalPeriodId: 'a5' });
+    expect(JSON.parse((post?.[1] as RequestInit).body as string)).toEqual({ companyId: 'a', periodId: 'a5' });
     expect(screen.getByRole('button', { name: /در حال ورود/ })).toHaveAttribute('aria-busy', 'true');
   });
 
@@ -368,7 +368,7 @@ describe('WorkContextSelector', () => {
     const onRefresh = vi.fn();
     stubApi({
       ...antiforgeryRoute,
-      'POST /api/v1/context': { status, body: { title: 'این دوره مالی برای ورود در دسترس نیست.' } },
+      'POST /api/v1/context': { status, body: { title: 'این دوره برای ورود در دسترس نیست.' } },
     });
     renderSelector(contextBody({ companies: [company('a', 'شرکت الف', [period('a5', 'سال ۱۴۰۵', y1405)])] }), { onRefresh });
 
@@ -376,7 +376,7 @@ describe('WorkContextSelector', () => {
 
     const alert = await screen.findByRole('alert');
     await waitFor(() => expect(alert).toHaveFocus());
-    expect(alert).toHaveTextContent(status === 404 ? 'دسترسی شما به این شرکت یا دوره مالی تغییر کرده است' : 'این دوره مالی برای ورود در دسترس نیست.');
+    expect(alert).toHaveTextContent(status === 404 ? 'دسترسی شما به این شرکت یا دوره تغییر کرده است' : 'این دوره برای ورود در دسترس نیست.');
     await userEvent.click(screen.getByRole('button', { name: 'به‌روزرسانی فهرست' }));
     expect(onRefresh).toHaveBeenCalledOnce();
     // The user may try again after a refused attempt.
