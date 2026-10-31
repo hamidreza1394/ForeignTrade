@@ -38,12 +38,11 @@ public static class WorkContextEndpoints
             return Results.Ok(new WorkContextResponse(null, "noCompany", null, null, []));
 
         var companyIds = memberships.Select(x => x.Company.Id).ToArray();
-        var periods = await db.OperationalPeriods.AsNoTracking()
-            .Where(x => companyIds.Contains(x.CompanyId) &&
-                        memberships.Select(m => m.Company.TenantId).Contains(x.TenantId))
-            .OrderByDescending(x => x.StartDate)
-            .ThenBy(x => x.Title)
-            .ToListAsync(ct);
+        var periods = await (from period in db.OperationalPeriods.AsNoTracking()
+            join company in db.Companies.AsNoTracking() on period.CompanyId equals company.Id
+            where companyIds.Contains(company.Id) && period.TenantId == company.TenantId
+            orderby period.StartDate descending, period.Title
+            select period).ToListAsync(ct);
 
         var periodMap = periods.GroupBy(x => x.CompanyId).ToDictionary(x => x.Key, x => x.ToArray());
         var companies = memberships.Select(m => new CompanyChoice(
@@ -82,7 +81,7 @@ public static class WorkContextEndpoints
             join period in db.OperationalPeriods on new { membership.TenantId, CompanyId = company.Id } equals new { period.TenantId, period.CompanyId }
             join tenant in db.Tenants on membership.TenantId equals tenant.Id
             where membership.UserId == user.Id && membership.IsActive && company.IsActive &&
-                  tenant.IsActive && period.Id == request.PeriodId &&
+                  company.TenantId == membership.TenantId && tenant.IsActive && period.Id == request.PeriodId &&
                   (period.Status == OperationalPeriodStatus.Open || period.Status == OperationalPeriodStatus.Closed)
             select new { Company = company, Membership = membership, Period = period }).SingleOrDefaultAsync(ct);
 
@@ -107,8 +106,9 @@ public static class WorkContextEndpoints
         var current = await (from membership in db.UserCompanyMemberships.AsNoTracking()
             join company in db.Companies.AsNoTracking() on membership.CompanyId equals company.Id
             join period in db.OperationalPeriods.AsNoTracking() on new { membership.TenantId, CompanyId = company.Id } equals new { period.TenantId, period.CompanyId }
-            where membership.UserId == userId && membership.IsActive && company.IsActive &&
-                  company.Id == companyId && period.Id == periodId &&
+            join tenant in db.Tenants.AsNoTracking() on membership.TenantId equals tenant.Id
+            where membership.UserId == userId && membership.IsActive && company.IsActive && tenant.IsActive &&
+                  company.TenantId == membership.TenantId && company.Id == companyId && period.Id == periodId &&
                   (period.Status == OperationalPeriodStatus.Open || period.Status == OperationalPeriodStatus.Closed)
             select new { Company = company, membership.RoleName, Period = period }).SingleOrDefaultAsync(ct);
         return current is null ? null : ToSelected(current.Company, current.RoleName, current.Period);
