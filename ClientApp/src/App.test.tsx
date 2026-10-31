@@ -16,7 +16,7 @@ const closed1404 = period('p0', 'سال مالی ۱۴۰۴', {
 const companyA = company('a', 'شرکت الف', [open1405], '10101010101');
 const overviewA = {
   company: { id: 'a', name: 'شرکت الف', nationalId: '10101010101', roleName: 'حسابدار' },
-  fiscalPeriods: [
+  periods: [
     { id: 'p1', title: 'سال مالی ۱۴۰۵', startDate: '2026-03-21', endDate: '2027-03-20', status: 'Open' },
   ],
 };
@@ -34,7 +34,7 @@ describe('App', () => {
         status: 200,
         body: contextBody({
           entry: 'directEntry',
-          directSelection: { companyId: 'a', fiscalPeriodId: 'p1' },
+          directSelection: { companyId: 'a', periodId: 'p1' },
           companies: [companyA],
         }),
       },
@@ -45,11 +45,11 @@ describe('App', () => {
     render(<App navigate={vi.fn()} />);
 
     // No selection screen: the dashboard of the confirmed choice appears.
-    expect(await screen.findByRole('heading', { name: 'داشبورد' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'بازرگانی خارجی - دوره' })).not.toBeInTheDocument();
 
     const post = fetchMock.mock.calls.find((call) => (call[1] as RequestInit | undefined)?.method === 'POST');
-    expect(JSON.parse((post?.[1] as RequestInit).body as string)).toEqual({ companyId: 'a', fiscalPeriodId: 'p1' });
+    expect(JSON.parse((post?.[1] as RequestInit).body as string)).toEqual({ companyId: 'a', periodId: 'p1' });
 
     // The context bar names the company and period; real data is shown and none is invented.
     const bar = screen.getByLabelText('زمینه کاری جاری');
@@ -57,7 +57,7 @@ describe('App', () => {
     expect(within(bar).getByText('سال مالی ۱۴۰۵')).toBeInTheDocument();
     const table = await screen.findByRole('table');
     expect(within(table).getByText('۱۴۰۵/۰۱/۰۱')).toBeInTheDocument();
-    expect(screen.getByText(/هیچ آمار مالی/)).toBeInTheDocument();
+    expect(screen.getByText(/گردش‌های کاری بازرگانی/)).toBeInTheDocument();
   });
 
   it('names the screen in the tab title: selection first, dashboard after entering', async () => {
@@ -72,8 +72,8 @@ describe('App', () => {
 
     render(<App navigate={vi.fn()} />);
 
-    expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' })).toBeInTheDocument();
-    await waitFor(() => expect(document.title).toBe('بازرگانی خارجی — انتخاب دوره مالی'));
+    expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' })).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe('بازرگانی خارجی — انتخاب شرکت و دوره'));
   });
 
   it('names the dashboard in the tab title once the work context is entered', async () => {
@@ -84,7 +84,7 @@ describe('App', () => {
         status: 200,
         body: contextBody({
           entry: 'directEntry',
-          directSelection: { companyId: 'a', fiscalPeriodId: 'p1' },
+          directSelection: { companyId: 'a', periodId: 'p1' },
           companies: [companyA],
         }),
       },
@@ -94,8 +94,8 @@ describe('App', () => {
 
     render(<App navigate={vi.fn()} />);
 
-    expect(await screen.findByRole('heading', { name: 'داشبورد' })).toBeInTheDocument();
-    await waitFor(() => expect(document.title).toBe('بازرگانی خارجی — داشبورد'));
+    expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe('بازرگانی خارجی — خانه'));
   });
 
   it('falls back to the selection screen when the server refuses the automatic entry', async () => {
@@ -106,7 +106,7 @@ describe('App', () => {
         status: 200,
         body: contextBody({
           entry: 'directEntry',
-          directSelection: { companyId: 'a', fiscalPeriodId: 'p1' },
+          directSelection: { companyId: 'a', periodId: 'p1' },
           companies: [companyA],
         }),
       },
@@ -115,8 +115,8 @@ describe('App', () => {
 
     render(<App navigate={vi.fn()} />);
 
-    expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'داشبورد' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'خانه' })).not.toBeInTheDocument();
   });
 
   it('asks the user to choose when there are several companies, and enters only after both choices', async () => {
@@ -132,13 +132,13 @@ describe('App', () => {
       },
       'GET /api/v1/companies/b/overview': {
         status: 200,
-        body: { company: { id: 'b', name: 'شرکت ب', nationalId: null, roleName: 'حسابدار' }, fiscalPeriods: [] },
+        body: { company: { id: 'b', name: 'شرکت ب', nationalId: null, roleName: 'حسابدار' }, periods: [] },
       },
     });
 
     render(<App navigate={vi.fn()} />);
 
-    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' });
+    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     const enter = screen.getByRole('button', { name: /ورود به محیط کاری/ });
 
     // The newest open year (1406) is preselected; only company B can be entered in it, so it is
@@ -150,8 +150,8 @@ describe('App', () => {
 
     await userEvent.click(enter);
 
-    expect(await screen.findByRole('heading', { name: 'داشبورد' })).toBeInTheDocument();
-    expect(postBodies).toEqual([{ companyId: 'b', fiscalPeriodId: 'p2' }]);
+    expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
+    expect(postBodies).toEqual([{ companyId: 'b', periodId: 'p2' }]);
   });
 
   it('offers every fiscal year of the only company; the newest open one is preselected, and a closed year is view-only', async () => {
@@ -164,7 +164,7 @@ describe('App', () => {
 
     render(<App navigate={vi.fn()} />);
 
-    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' });
+    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     const years = within(screen.getByRole('radiogroup', { name: 'دوره‌های مالی' })).getAllByRole('radio');
     expect(years).toHaveLength(3);
     years.forEach((year) => expect(year).toBeEnabled());
@@ -193,7 +193,7 @@ describe('App', () => {
 
     render(<App navigate={vi.fn()} />);
 
-    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' });
+    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     // The newest open year is preselected; the closed one is not, and entering needs a click.
     expect(screen.getByRole('radio', { name: /سال مالی ۱۴۰۵/ })).toBeChecked();
     expect(screen.getByRole('radio', { name: /سال مالی ۱۴۰۴/ })).not.toBeChecked();
@@ -201,8 +201,8 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۴/ }));
     await userEvent.click(screen.getByRole('button', { name: /ورود به محیط کاری/ }));
 
-    expect(await screen.findByRole('heading', { name: 'داشبورد' })).toBeInTheDocument();
-    expect(postBodies).toEqual([{ companyId: 'a', fiscalPeriodId: 'p0' }]);
+    expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
+    expect(postBodies).toEqual([{ companyId: 'a', periodId: 'p0' }]);
     expect(screen.getByText('فقط مشاهده و گزارش‌گیری')).toBeInTheDocument();
   });
 
@@ -210,7 +210,7 @@ describe('App', () => {
     const companyB = company('b', 'شرکت ب', [open1406]);
     const overviewB = {
       company: { id: 'b', name: 'شرکت ب', nationalId: null, roleName: 'حسابدار' },
-      fiscalPeriods: [{ id: 'p2', title: 'سال مالی ۱۴۰۶', startDate: '2027-03-21', endDate: '2028-03-19', status: 'Open' }],
+      periods: [{ id: 'p2', title: 'سال مالی ۱۴۰۶', startDate: '2027-03-21', endDate: '2028-03-19', status: 'Open' }],
     };
     const choices = contextBody({ current: selected(companyA, open1405), companies: [companyA, companyB] });
     const fetchMock = stubApi({
@@ -223,7 +223,7 @@ describe('App', () => {
     });
 
     render(<App navigate={vi.fn()} />);
-    await screen.findByRole('heading', { name: 'داشبورد' });
+    await screen.findByRole('heading', { name: 'خانه' });
     await userEvent.click(await screen.findByRole('button', { name: /تغییر شرکت یا دوره/ }));
     // The current choice (company A, year 1405) is shown; moving to 1406 clears A and pre-selects B.
     expect(await screen.findByRole('radio', { name: /شرکت الف/ })).toBeChecked();
@@ -246,7 +246,7 @@ describe('App', () => {
     render(<App navigate={vi.fn()} />);
 
     expect(await screen.findByRole('heading', { name: 'شرکتی برای ورود در دسترس نیست' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'داشبورد' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'خانه' })).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.some((call) => String(call[0]).includes('/overview'))).toBe(false);
   });
 
@@ -266,7 +266,7 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'دوره مالی قابل ورودی وجود ندارد' })).toBeInTheDocument();
     expect(screen.getByText('شرکت الف')).toBeInTheDocument();
     expect(screen.getByText('بدون دوره مالی قابل ورود')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'داشبورد' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'خانه' })).not.toBeInTheDocument();
   });
 
   it('keeps the validated choice of the same sign-in after a reload, without asking again', async () => {
@@ -282,7 +282,7 @@ describe('App', () => {
 
     render(<App navigate={vi.fn()} />);
 
-    expect(await screen.findByRole('heading', { name: 'داشبورد' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
     expect(fetchMock.mock.calls.some((call) => (call[1] as RequestInit | undefined)?.method === 'POST')).toBe(false);
   });
 
@@ -304,13 +304,13 @@ describe('App', () => {
     await userEvent.click(await screen.findByRole('button', { name: /تغییر شرکت یا دوره/ }));
 
     // The selector opens with the current choice pre-selected, and the choices were reloaded.
-    expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /شرکت الف/ })).toBeChecked();
     expect(screen.getByRole('radio', { name: /سال مالی ۱۴۰۵/ })).toBeChecked();
     expect(fetchMock.mock.calls.filter((call) => call[0] === '/api/v1/context')).toHaveLength(2);
 
     await userEvent.click(screen.getByRole('button', { name: 'انصراف' }));
-    expect(await screen.findByRole('heading', { name: 'داشبورد' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
   });
 
   it('sends one request even when the entry button is activated twice quickly', async () => {
@@ -327,19 +327,19 @@ describe('App', () => {
       },
       'GET /api/v1/companies/b/overview': {
         status: 200,
-        body: { company: { id: 'b', name: 'شرکت ب', nationalId: null, roleName: 'حسابدار' }, fiscalPeriods: [] },
+        body: { company: { id: 'b', name: 'شرکت ب', nationalId: null, roleName: 'حسابدار' }, periods: [] },
       },
     });
     void release;
 
     render(<App navigate={vi.fn()} />);
-    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' });
+    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     const enter = screen.getByRole('button', { name: /ورود به محیط کاری/ });
 
     await userEvent.dblClick(enter);
 
-    await screen.findByRole('heading', { name: 'داشبورد' });
+    await screen.findByRole('heading', { name: 'خانه' });
     expect(posts).toBe(1);
   });
 
@@ -353,14 +353,14 @@ describe('App', () => {
     });
 
     render(<App navigate={vi.fn()} />);
-    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' });
+    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     await userEvent.click(screen.getByRole('button', { name: /ورود به محیط کاری/ }));
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('دسترسی شما به این شرکت یا دوره مالی تغییر کرده است');
     await waitFor(() => expect(alert).toHaveFocus());
-    expect(screen.queryByRole('heading', { name: 'داشبورد' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'خانه' })).not.toBeInTheDocument();
 
     const isContextGet = (call: unknown[]) =>
       call[0] === '/api/v1/context' && ((call[1] as RequestInit | undefined)?.method ?? 'GET') === 'GET';
@@ -409,7 +409,7 @@ describe('App', () => {
     const navigate = vi.fn();
 
     render(<App navigate={navigate} />);
-    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره مالی' });
+    await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     await userEvent.click(screen.getByRole('button', { name: /ورود به محیط کاری/ }));
 
