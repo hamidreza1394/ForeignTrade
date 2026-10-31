@@ -17,7 +17,36 @@ public static class WorkContextEndpoints
     {
         api.MapGet("/context", GetContextAsync).RequireAuthorization();
         api.MapPost("/context", SelectContextAsync).RequireAuthorization();
+        api.MapGet("/companies/{companyId:guid}/overview", GetCompanyOverviewAsync).RequireAuthorization();
         return api;
+    }
+
+
+    private static async Task<IResult> GetCompanyOverviewAsync(
+        Guid companyId, ClaimsPrincipal principal, UserManager<ApplicationUser> users,
+        ForeignTradeDbContext db, CancellationToken ct)
+    {
+        var user = await users.GetUserAsync(principal);
+        if (user is null || !user.IsActive) return Results.Unauthorized();
+
+        var company = await (from membership in db.UserCompanyMemberships.AsNoTracking()
+            join item in db.Companies.AsNoTracking() on membership.CompanyId equals item.Id
+            join tenant in db.Tenants.AsNoTracking() on membership.TenantId equals tenant.Id
+            where membership.UserId == user.Id && membership.IsActive && item.IsActive &&
+                  tenant.IsActive && item.TenantId == membership.TenantId && item.Id == companyId
+            select new { Company = item, membership.RoleName }).SingleOrDefaultAsync(ct);
+
+        if (company is null) return Results.NotFound(new { title = "شرکت پیدا نشد یا به آن دسترسی ندارید." });
+
+        var periods = await db.OperationalPeriods.AsNoTracking()
+            .Where(period => period.CompanyId == companyId && period.TenantId == company.Company.TenantId)
+            .OrderByDescending(period => period.StartDate)
+            .Select(period => new PeriodSummary(period.Id, period.Title, period.StartDate, period.EndDate, period.Status.ToString()))
+            .ToListAsync(ct);
+
+        return Results.Ok(new CompanyOverview(
+            new CompanySummary(company.Company.Id, company.Company.Name, company.Company.NationalId, company.RoleName),
+            periods));
     }
 
     private static async Task<IResult> GetContextAsync(
@@ -123,6 +152,8 @@ public static class WorkContextEndpoints
         new(new CompanySummary(company.Id, company.Name, company.NationalId, roleName), ToChoice(period));
 
     public sealed record SelectContextRequest(Guid CompanyId, Guid PeriodId);
+    public sealed record PeriodSummary(Guid Id, string Title, DateOnly StartDate, DateOnly EndDate, string Status);
+    public sealed record CompanyOverview(CompanySummary Company, IReadOnlyList<PeriodSummary> Periods);
     public sealed record CompanySummary(Guid Id, string Name, string? NationalId, string RoleName);
     public sealed record PeriodChoice(Guid Id, string Title, DateOnly StartDate, DateOnly EndDate, string Status, bool IsSelectable, string? AccessMode);
     public sealed record CompanyChoice(Guid Id, string Name, string? NationalId, string RoleName, IReadOnlyList<PeriodChoice> Periods, IReadOnlyList<string> RelationshipTypes);
