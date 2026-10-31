@@ -88,10 +88,10 @@ public static class WorkContextEndpoints
 
         var current = await GetCurrentAsync(principal, db, user.Id, ct);
         var entry = current is not null ? "selectionRequired" :
-            eligible.Length == 1 ? "directEntry" :
+            memberships.Count == 1 && eligible.Length == 1 ? "directEntry" :
             eligible.Length == 0 ? "noEligiblePeriod" : "selectionRequired";
         return Results.Ok(new WorkContextResponse(current, entry,
-            eligible.Length == 1 ? eligible[0] : null, companies));
+            memberships.Count == 1 && eligible.Length == 1 ? eligible[0] : null, companies));
     }
 
     private static async Task<IResult> SelectContextAsync(
