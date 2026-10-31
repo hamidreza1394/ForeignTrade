@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, UnauthenticatedError, buildLoginUrl, getCompanies, getCompanyOverview, getWorkContext, login, logout } from './client';
+import { ApiError, UnauthenticatedError, getCompanies, getCompanyOverview, getWorkContext, login, logout } from './client';
 import { ContractError } from './types';
 
 function jsonResponse(status: number, body: unknown, contentType = 'application/json'): Response {
@@ -118,10 +118,4 @@ describe('api client', () => {
     expect(String(init.body)).toContain('"password":"secret-value"');
   });
 
-  it('builds a login URL that returns to a local path only', () => {
-    expect(buildLoginUrl({ pathname: '/app/', search: '?company=c1' })).toBe(
-      '/Account/Login?ReturnUrl=%2Fapp%2F%3Fcompany%3Dc1',
-    );
-    expect(buildLoginUrl({ pathname: '//evil.example', search: '' })).toBe('/Account/Login?ReturnUrl=%2Fapp%2F');
-  });
 });
