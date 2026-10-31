@@ -7,7 +7,7 @@ import { BuildingIcon, CalendarIcon, EyeIcon, SwapIcon } from './ui/icons';
 
 type AppShellProps = {
   session: Session;
-  /** The company and fiscal period the user works in during this sign-in. */
+  /** The company and operational period the user works in during this sign-in. */
   context: SelectedContext;
   onChangeContext: () => void;
   onLogout: () => Promise<void>;
@@ -16,7 +16,7 @@ type AppShellProps = {
 
 /**
  * The right-to-left frame of the client: brand, the signed-in user, sign-out and the main
- * navigation. Only screens that exist are listed; future accounting modules are not shown
+ * navigation. Only screens that exist are listed; future trade modules are not shown
  * as if they were available.
  */
 export function AppShell({ session, context, onChangeContext, onLogout, children }: AppShellProps) {
@@ -38,7 +38,7 @@ export function AppShell({ session, context, onChangeContext, onLogout, children
     <div className="min-h-screen">
       <header className="on-dark bg-navy text-white shadow-md">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <a href="/app/" className="flex items-center gap-3" aria-label="بازرگانی خارجی — داشبورد">
+          <a href="/app/" className="flex items-center gap-3" aria-label="بازرگانی خارجی — خانه">
             <FaranouLogo size={36} tone="dark" />
           </a>
 
@@ -71,11 +71,11 @@ export function AppShell({ session, context, onChangeContext, onLogout, children
               <CalendarIcon className="shrink-0 text-navy" />
               <dt className="text-muted">دوره مالی</dt>
               <dd className="font-semibold text-ink">
-                {context.fiscalPeriod.title}
+                {context.period.title}
                 <span className="ms-2 text-xs font-normal tabular-nums text-muted">
-                  ({formatPersianDate(context.fiscalPeriod.startDate)} تا {formatPersianDate(context.fiscalPeriod.endDate)})
+                  ({formatPersianDate(context.period.startDate)} تا {formatPersianDate(context.period.endDate)})
                 </span>
-                {context.fiscalPeriod.accessMode === 'readOnly' ? (
+                {context.period.accessMode === 'readOnly' ? (
                   <span className="ms-2 inline-flex items-center gap-1 rounded-md border border-slate-300 bg-cool px-2 py-0.5 text-xs font-semibold text-muted">
                     <EyeIcon width={13} height={13} />
                     فقط مشاهده و گزارش‌گیری
@@ -108,7 +108,7 @@ export function AppShell({ session, context, onChangeContext, onLogout, children
                 aria-current="page"
                 className="block whitespace-nowrap rounded-lg bg-white px-4 py-2 font-medium text-navy shadow-sm ring-1 ring-line"
               >
-                داشبورد
+                خانه
               </a>
             </li>
             <li>
@@ -116,7 +116,7 @@ export function AppShell({ session, context, onChangeContext, onLogout, children
                 href="/"
                 className="block whitespace-nowrap rounded-lg px-4 py-2 text-muted hover:bg-white hover:text-navy"
               >
-                نسخه قبلی (Razor)
+                
               </a>
             </li>
           </ul>
