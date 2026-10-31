@@ -94,7 +94,6 @@ app.UseAuthorization();
 var api = app.MapGroup("/api/v1");
 api.MapAuthEndpoints();
 api.MapWorkContextEndpoints();
-api.MapPost("/antiforgery/token", () => Results.NoContent()).AllowAnonymous();
 
 app.MapFallbackToFile("/app/{*path:nonfile}", "app/index.html");
 
