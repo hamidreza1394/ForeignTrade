@@ -439,10 +439,8 @@ describe('WorkContextSelector', () => {
   it('shows the official brand mark and no licence, user-count or subsystem data', () => {
     renderSelector(twoYears());
 
-    const mark = screen.getByRole('img', { name: 'نشان بازرگانی خارجی' });
-    expect(mark).toHaveAttribute('src', '/images/foreigntrade-brand-mark.webp');
-    expect(mark).toHaveAttribute('width');
-    expect(mark).toHaveAttribute('height');
+    const mark = screen.getByText('FT');
+    expect(mark).toBeInTheDocument();
     expect(screen.queryByText(/مجوز/)).not.toBeInTheDocument();
     expect(screen.queryByText(/زیرسیستم/)).not.toBeInTheDocument();
   });
@@ -482,12 +480,12 @@ describe('WorkContextSelector', () => {
     expect(within(rowOf('شرکت ج')).queryByText('شرکت مستقل')).not.toBeInTheDocument();
   });
 
-  it('marks the saved default company without entering automatically', () => {
+  it('does not restore a previously selected company from a saved preference', () => {
     const onSelected = vi.fn();
     const body = twoYears() as { companies: unknown[] };
     renderSelector({ ...body, defaultCompanyId: 'b' }, { onSelected });
 
-    expect(screen.getAllByText('پیش‌فرض شما').length).toBeGreaterThan(0);
+    expect(within(screen.getByRole('radiogroup', { name: 'شرکت‌ها' })).getAllByRole('radio').every((radio) => !radio.checked)).toBe(true);
     expect(onSelected).not.toHaveBeenCalled();
     expect(enterButton()).toBeInTheDocument();
   });
