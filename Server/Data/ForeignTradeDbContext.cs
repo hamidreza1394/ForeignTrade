@@ -32,6 +32,7 @@ public sealed class ForeignTradeDbContext(DbContextOptions<ForeignTradeDbContext
             entity.Property(x => x.NationalId).HasMaxLength(32);
             entity.HasOne<Tenant>().WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(x => new { x.TenantId, x.Name });
+            entity.HasAlternateKey(x => new { x.TenantId, x.Id });
             entity.HasIndex(x => new { x.TenantId, x.NationalId }).IsUnique().HasFilter("[NationalId] IS NOT NULL");
         });
 
@@ -41,7 +42,7 @@ public sealed class ForeignTradeDbContext(DbContextOptions<ForeignTradeDbContext
             entity.HasKey(x => x.Id);
             entity.Property(x => x.RoleName).HasMaxLength(120).IsRequired();
             entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<Company>().WithMany().HasForeignKey(x => x.CompanyId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Company>().WithMany().HasForeignKey(x => new { x.TenantId, x.CompanyId }).HasPrincipalKey(x => new { x.TenantId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<Tenant>().WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(x => new { x.TenantId, x.UserId, x.CompanyId }).IsUnique();
         });
