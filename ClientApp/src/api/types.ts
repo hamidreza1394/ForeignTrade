@@ -1,4 +1,4 @@
-// Contracts of the Faranou JSON API v1 (Server/Api/ApiEndpoints.cs).
+// Contracts of the ForeignTrade API v1 (Server/Api).
 // Every response is checked at runtime before it is used, so a contract change on the
 // server surfaces as a clear error instead of `undefined` deep inside a component.
 
@@ -37,7 +37,7 @@ export type CompanyOverview = {
 export type AccessMode = 'readWrite' | 'readOnly';
 
 /**
- * A fiscal period as offered for selection; `isSelectable` and `accessMode` are decided by the
+ * An operational period as offered for selection; `isSelectable` and `accessMode` are decided by the
  * server (`accessMode` is `null` for a period that cannot be entered).
  */
 export type OperationalPeriodChoice = OperationalPeriod & { isSelectable: boolean; accessMode: AccessMode | null };
@@ -56,7 +56,7 @@ export type EntryMode = 'directEntry' | 'selectionRequired' | 'noCompany' | 'noE
 export type DirectSelection = { companyId: string; periodId: string };
 
 /**
- * The working context of the sign-in: the validated current choice (if any), the choices, and
+ * The selected company and operational period for the sign-in: the validated current choice (if any), the choices, and
  * what to do next. Every decision is made by the server; the client only presents it.
  */
 export type WorkContext = {
