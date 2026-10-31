@@ -301,7 +301,7 @@ export function WorkContextSelector({
   const unavailableCompanies = useMemo(() => companiesWithoutEnterablePeriod(companies), [companies]);
   const hasEnterableYear = years.some((year) => year.isEnterable);
 
-  const [selection, setSelection] = useState<Selection>(() => initialSelection(years, current, null));
+  const [selection, setSelection] = useState<Selection>(() => initialSelection(years, current));
   const [query, setQuery] = useState('');
   const [yearQuery, setYearQuery] = useState('');
   const [submitting, setSubmitting] = useState(false);
