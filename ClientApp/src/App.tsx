@@ -23,11 +23,7 @@ type AppState =
   | { kind: 'error'; message: string }
   | { kind: 'ready'; session: Session; context: WorkContext; selecting: boolean };
 
-export type Navigate = (url: string) => void;
-
-const defaultNavigate: Navigate = (url) => window.location.assign(url);
-
-export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
+export function App() {
   const [state, setState] = useState<AppState>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
   // The automatic entry is attempted once per load; a refused attempt falls back to the
@@ -47,7 +43,7 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
       }
       return false;
     },
-    [navigate],
+    [],
   );
 
   useEffect(() => {
@@ -110,7 +106,7 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
   const handleLogout = useCallback(async () => {
     await logout();
     setState({ kind: 'unauthenticated' });
-  }, [navigate]);
+  }, []);
 
   const handleLogoutFromScreen = useCallback(() => {
     void handleLogout().catch((error: unknown) => {
