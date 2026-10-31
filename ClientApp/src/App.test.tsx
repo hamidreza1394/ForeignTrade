@@ -42,7 +42,7 @@ describe('App', () => {
       'GET /api/v1/companies/a/overview': { status: 200, body: overviewA },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     // No selection screen: the dashboard of the confirmed choice appears.
     expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('App', () => {
       },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' })).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe('بازرگانی خارجی — انتخاب شرکت و دوره'));
@@ -92,7 +92,7 @@ describe('App', () => {
       'GET /api/v1/companies/a/overview': { status: 200, body: overviewA },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe('بازرگانی خارجی — خانه'));
@@ -113,7 +113,7 @@ describe('App', () => {
       'POST /api/v1/context': { status: 409, body: { title: 'این دوره مالی برای ورود در دسترس نیست.' } },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'خانه' })).not.toBeInTheDocument();
@@ -136,7 +136,7 @@ describe('App', () => {
       },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     const enter = screen.getByRole('button', { name: /ورود به محیط کاری/ });
@@ -162,7 +162,7 @@ describe('App', () => {
       'GET /api/v1/context': { status: 200, body: contextBody({ companies: [company2] }) },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     const years = within(screen.getByRole('radiogroup', { name: 'دوره‌های مالی' })).getAllByRole('radio');
@@ -191,7 +191,7 @@ describe('App', () => {
       'GET /api/v1/companies/a/overview': { status: 200, body: overviewA },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     // The newest open year is preselected; the closed one is not, and entering needs a click.
@@ -222,7 +222,7 @@ describe('App', () => {
       'GET /api/v1/companies/b/overview': { status: 200, body: overviewB },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
     await screen.findByRole('heading', { name: 'خانه' });
     await userEvent.click(await screen.findByRole('button', { name: /تغییر شرکت یا دوره/ }));
     // The current choice (company A, year 1405) is shown; moving to 1406 clears A and pre-selects B.
@@ -243,7 +243,7 @@ describe('App', () => {
       'GET /api/v1/context': { status: 200, body: contextBody({ entry: 'noCompany' }) },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'شرکتی برای ورود در دسترس نیست' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'خانه' })).not.toBeInTheDocument();
@@ -261,7 +261,7 @@ describe('App', () => {
       },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'دوره مالی قابل ورودی وجود ندارد' })).toBeInTheDocument();
     expect(screen.getByText('شرکت الف')).toBeInTheDocument();
@@ -280,7 +280,7 @@ describe('App', () => {
       'GET /api/v1/companies/a/overview': { status: 200, body: overviewA },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'خانه' })).toBeInTheDocument();
     expect(fetchMock.mock.calls.some((call) => (call[1] as RequestInit | undefined)?.method === 'POST')).toBe(false);
@@ -299,7 +299,7 @@ describe('App', () => {
       'GET /api/v1/companies/a/overview': { status: 200, body: overviewA },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     await userEvent.click(await screen.findByRole('button', { name: /تغییر شرکت یا دوره/ }));
 
@@ -332,7 +332,7 @@ describe('App', () => {
     });
     void release;
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     const enter = screen.getByRole('button', { name: /ورود به محیط کاری/ });
@@ -352,7 +352,7 @@ describe('App', () => {
       'POST /api/v1/context': { status: 404 },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     await userEvent.click(screen.getByRole('button', { name: /ورود به محیط کاری/ }));
@@ -375,7 +375,7 @@ describe('App', () => {
       'GET /api/v1/context': { status: 500 },
     });
 
-    render(<App navigate={vi.fn()} />);
+    render(<App />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('خطای غیرمنتظره');
     expect(screen.queryByRole('heading', { name: 'شرکتی برای ورود در دسترس نیست' })).not.toBeInTheDocument();
@@ -390,9 +390,7 @@ describe('App', () => {
       'GET /api/v1/session': { status: 401 },
       'GET /api/v1/context': { status: 401 },
     });
-    const navigate = vi.fn();
-
-    render(<App navigate={navigate} />);
+    render(<App />);
 
     expect(await screen.findByText('در حال انتقال به صفحه ورود…')).toBeInTheDocument();
     expect(navigate).toHaveBeenCalledWith('/Account/Login?ReturnUrl=%2Fapp%2F');
@@ -408,7 +406,7 @@ describe('App', () => {
     });
     const navigate = vi.fn();
 
-    render(<App navigate={navigate} />);
+    render(<App />);
     await screen.findByRole('heading', { name: 'بازرگانی خارجی - دوره' });
     await userEvent.click(screen.getByRole('radio', { name: /سال مالی ۱۴۰۶/ }));
     await userEvent.click(screen.getByRole('button', { name: /ورود به محیط کاری/ }));
@@ -426,9 +424,9 @@ describe('App', () => {
     });
     const navigate = vi.fn();
 
-    render(<App navigate={navigate} />);
+    render(<App />);
     await userEvent.click(await screen.findByRole('button', { name: 'خروج' }));
 
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/Account/Login'));
+    expect(await screen.findByRole('heading', { name: 'ورود به سامانه' })).toBeInTheDocument();
   });
 });
