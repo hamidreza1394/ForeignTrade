@@ -1,18 +1,18 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ApiError, selectWorkContext, setDefaultCompany as saveDefaultCompany } from '../api/client';
-import type { CompanyRelationshipType, FiscalPeriodStatus, SelectedContext, Session, WorkContext } from '../api/types';
+import type { CompanyRelationshipType, OperationalPeriodStatus, SelectedContext, Session, WorkContext } from '../api/types';
 import { formatPersianDate } from '../lib/date';
 import {
   companiesWithoutEnterablePeriod,
   formatCount,
-  groupFiscalYears,
+  groupPeriodYears,
   initialSelection,
   selectedEntry,
   selectYear,
-  type FiscalYear,
+  type PeriodYear,
   type Selection,
   type YearEntry,
-} from '../lib/fiscalYears';
+} from '../lib/periodYears';
 import { matchesCompany, matchesYear } from '../lib/search';
 import { SelectionFooter } from './SelectionFooter';
 import { SelectionLayout } from './SelectionLayout';
@@ -38,7 +38,7 @@ const relationshipLabels: Record<CompanyRelationshipType, string> = {
 };
 
 /** The badge of a fiscal year in the period list. */
-const yearBadges: Record<FiscalPeriodStatus, { label: string; className: string }> = {
+const yearBadges: Record<OperationalPeriodStatus, { label: string; className: string }> = {
   Open: { label: 'فعال', className: 'bg-[#dcf4e8] text-success' },
   Closed: { label: 'بسته شده', className: 'bg-[#e1e7f0] text-sub' },
   Archived: { label: 'بایگانی', className: 'bg-[#e1e7f0] text-sub' },
@@ -129,7 +129,7 @@ function YearCard({
   name,
   onChange,
 }: {
-  year: FiscalYear;
+  year: PeriodYear;
   checked: boolean;
   name: string;
   onChange: (key: string) => void;
@@ -300,11 +300,11 @@ export function WorkContextSelector({
   const { companies } = context;
   const groupId = useId();
 
-  const years = useMemo(() => groupFiscalYears(companies), [companies]);
+  const years = useMemo(() => groupPeriodYears(companies), [companies]);
   const unavailableCompanies = useMemo(() => companiesWithoutEnterablePeriod(companies), [companies]);
   const hasEnterableYear = years.some((year) => year.isEnterable);
 
-  const [selection, setSelection] = useState<Selection>(() => initialSelection(years, current, context.defaultCompanyId));
+  const [selection, setSelection] = useState<Selection>(() => initialSelection(years, current, null));
   const [defaultCompanyId, setDefaultCompanyId] = useState<string | null>(() => context.defaultCompanyId);
   const [savingDefault, setSavingDefault] = useState(false);
   const [query, setQuery] = useState('');
@@ -408,7 +408,7 @@ export function WorkContextSelector({
           message:
             caught.status === 409
               ? caught.message
-              : 'دسترسی شما به این شرکت یا دوره مالی تغییر کرده است. فهرست را به‌روز کنید و دوباره انتخاب کنید.',
+              : 'دسترسی شما به این شرکت یا دوره تغییر کرده است. فهرست را به‌روز کنید و دوباره انتخاب کنید.',
           stale: true,
         });
       } else {
@@ -436,10 +436,10 @@ export function WorkContextSelector({
               <span aria-hidden="true" className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#e6eef9] text-[#1d4f86]">
                 <CalendarIcon width={26} height={26} strokeWidth={1.7} />
               </span>
-              <h1 className="text-[1.625rem] font-extrabold leading-snug text-title sm:text-[2rem]">بازرگانی خارجی - دوره مالی</h1>
+              <h1 className="text-[1.625rem] font-extrabold leading-snug text-title sm:text-[2rem]">بازرگانی خارجی - دوره</h1>
             </div>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-sub">
-              برای ورود به محیط کاری، ابتدا دوره مالی و سپس شرکت موردنظر را انتخاب کنید.
+              برای ورود به محیط کاری، ابتدا دوره و سپس شرکت موردنظر را انتخاب کنید.
             </p>
           </div>
           <p className="inline-flex items-center gap-3 rounded-2xl border border-white bg-white/90 px-5 py-3 text-[0.8125rem] font-medium text-title shadow-[0_4px_18px_rgb(31_70_120/0.1)]">
@@ -478,13 +478,13 @@ export function WorkContextSelector({
                 دوره‌های مالی
               </h2>
               <span className="ms-auto">
-                <Chip tone="period">{formatCount(years.length)} دوره مالی</Chip>
+                <Chip tone="period">{formatCount(years.length)} دوره</Chip>
               </span>
             </div>
             <div className="mt-3">
               <SearchBox
                 id={`${groupId}-year-search`}
-                label="جست‌وجوی دوره مالی بر اساس عنوان یا تاریخ"
+                label="جست‌وجوی دوره بر اساس عنوان یا تاریخ"
                 placeholder="جستجو در دوره‌های مالی..."
                 value={yearQuery}
                 onChange={setYearQuery}
@@ -494,7 +494,7 @@ export function WorkContextSelector({
 
             {visibleYears.length === 0 ? (
               <p role="status" className="mt-3 rounded-xl border border-dashed border-period-line bg-white/70 p-6 text-center text-sm text-sub">
-                دوره مالی با این مشخصات پیدا نشد.
+                دوره با این مشخصات پیدا نشد.
               </p>
             ) : (
               <div
@@ -559,7 +559,7 @@ export function WorkContextSelector({
             {!year ? (
               <p className="mt-4 rounded-xl border border-dashed border-slate-400 bg-white/70 px-4 py-8 text-center text-sm leading-7 text-sub">
                 <CalendarIcon width={28} height={28} className="mx-auto mb-2 text-slate-500" />
-                ابتدا یک دوره مالی انتخاب کنید.
+                ابتدا یک دوره انتخاب کنید.
               </p>
             ) : visibleEntries.length === 0 ? (
               <p role="status" className="mt-4 rounded-xl border border-dashed border-slate-400 bg-white/70 p-6 text-center text-sm text-sub">
@@ -601,7 +601,7 @@ export function WorkContextSelector({
               <p className="mt-3 flex items-start gap-2 text-[0.8125rem] leading-6 text-sub">
                 <InfoIcon width={16} height={16} className="mt-1 shrink-0" />
                 <span>
-                  دوره مالی قابل ورود برای این شرکت‌ها وجود ندارد:{' '}
+                  دوره قابل ورود برای این شرکت‌ها وجود ندارد:{' '}
                   {unavailableCompanies.map((item) => item.name).join('، ')}
                 </span>
               </p>
