@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Session } from '../api/types';
-import { FaranouLogo } from './ui/FaranouLogo';
+import { ForeignTradeLogo } from './ui/ForeignTradeLogo';
 import { SelectionBackdrop } from './ui/SelectionBackdrop';
 
 type SelectionLayoutProps = {
@@ -42,11 +42,11 @@ export function SelectionLayout({ session, onLogout, footer, width = 'wide', chi
       <header className="on-dark bg-gradient-to-b from-[#15304a] to-[#0f2a45] text-white shadow-[0_2px_12px_rgb(15_42_69/0.25)]">
         <div className="flex min-h-[4.75rem] items-center justify-between gap-3 px-4 py-2 sm:px-8 xl:px-14">
           <span className="inline-flex items-center gap-3">
-            <FaranouLogo size={46} label={false} tone="dark" />
+            <ForeignTradeLogo size={46} label={false} tone="dark" />
             <span className="flex flex-col leading-tight">
               <strong className="text-[1.375rem] font-extrabold text-white">بازرگانی خارجی</strong>
               <span dir="ltr" className="text-[0.6875rem] font-medium tracking-[0.18em] text-white/75">
-                FARANOU
+                FOREIGN TRADE
               </span>
             </span>
           </span>
