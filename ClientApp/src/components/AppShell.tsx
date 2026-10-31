@@ -111,14 +111,7 @@ export function AppShell({ session, context, onChangeContext, onLogout, children
                 خانه
               </a>
             </li>
-            <li>
-              <a
-                href="/"
-                className="block whitespace-nowrap rounded-lg px-4 py-2 text-muted hover:bg-white hover:text-navy"
-              >
-                
-              </a>
-            </li>
+            
           </ul>
         </nav>
 
