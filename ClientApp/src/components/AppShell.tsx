@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import type { SelectedContext, Session } from '../api/types';
 import { formatPersianDate } from '../lib/date';
-import { Button } from './ui/FaranouButton';
-import { FaranouLogo } from './ui/FaranouLogo';
+import { Button } from './ui/ForeignTradeButton';
+import { ForeignTradeLogo } from './ui/ForeignTradeLogo';
 import { BuildingIcon, CalendarIcon, EyeIcon, SwapIcon } from './ui/icons';
 
 type AppShellProps = {
@@ -39,7 +39,7 @@ export function AppShell({ session, context, onChangeContext, onLogout, children
       <header className="on-dark bg-navy text-white shadow-md">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <a href="/app/" className="flex items-center gap-3" aria-label="بازرگانی خارجی — خانه">
-            <FaranouLogo size={36} tone="dark" />
+            <ForeignTradeLogo size={36} tone="dark" />
           </a>
 
           <div className="flex items-center gap-3 text-sm">
