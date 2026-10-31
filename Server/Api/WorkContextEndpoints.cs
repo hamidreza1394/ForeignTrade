@@ -88,10 +88,10 @@ public static class WorkContextEndpoints
 
         var current = await GetCurrentAsync(principal, db, user.Id, ct);
         var entry = current is not null ? "selectionRequired" :
-            memberships.Count == 1 && eligible.Length == 1 ? "directEntry" :
+            OperationalPeriodPolicy.CanEnterDirectly(memberships.Count, eligible.Length) ? "directEntry" :
             eligible.Length == 0 ? "noEligiblePeriod" : "selectionRequired";
         return Results.Ok(new WorkContextResponse(current, entry,
-            memberships.Count == 1 && eligible.Length == 1 ? eligible[0] : null, companies));
+            OperationalPeriodPolicy.CanEnterDirectly(memberships.Count, eligible.Length) ? eligible[0] : null, companies));
     }
 
     private static async Task<IResult> SelectContextAsync(
@@ -145,8 +145,8 @@ public static class WorkContextEndpoints
 
     private static PeriodChoice ToChoice(OperationalPeriod period) =>
         new(period.Id, period.Title, period.StartDate, period.EndDate, period.Status.ToString(),
-            period.Status is OperationalPeriodStatus.Open or OperationalPeriodStatus.Closed,
-            period.Status == OperationalPeriodStatus.Open ? "readWrite" : "readOnly");
+            OperationalPeriodPolicy.IsSelectable(period.Status),
+            OperationalPeriodPolicy.AccessMode(period.Status));
 
     private static SelectedContext ToSelected(Company company, string roleName, OperationalPeriod period) =>
         new(new CompanySummary(company.Id, company.Name, company.NationalId, roleName), ToChoice(period));
