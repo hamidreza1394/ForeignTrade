@@ -51,7 +51,7 @@ export function company(id: string, name: string, periods: unknown[], nationalId
 }
 
 export function contextBody(overrides: Record<string, unknown> = {}) {
-  return { current: null, entry: 'selectionRequired', directSelection: null, defaultCompanyId: null, companies: [], ...overrides };
+  return { current: null, entry: 'selectionRequired', directSelection: null, companies: [], ...overrides };
 }
 
 export function selected(c: { id: string; name: string; nationalId: string | null; roleName: string }, p: unknown) {
