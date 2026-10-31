@@ -18,7 +18,6 @@ import {
 
 const apiBase = '/api/v1';
 
-export const loginPath = '/Account/Login';
 
 /** Thrown for 401: the session is missing or expired. */
 export class UnauthenticatedError extends Error {
@@ -164,21 +163,7 @@ export async function selectWorkContext(companyId: string, periodId: string): Pr
   return parseSelectedContextResponse(await response.json());
 }
 
-/** Persists the preferred company for this user; it never selects the active work context. */
-export async function setDefaultCompany(companyId: string | null): Promise<void> {
-  await sendJson('POST', '/context/default-company', { companyId });
-}
-
 export async function logout(): Promise<void> {
   await post('/session/logout');
 }
 
-/**
- * The address of the existing Razor sign-in page, returning to the current client route.
- * Only a local path is passed; the server additionally accepts local URLs only.
- */
-export function buildLoginUrl(location: Pick<Location, 'pathname' | 'search'>): string {
-  const returnUrl = `${location.pathname}${location.search}`;
-  const safeReturnUrl = returnUrl.startsWith('/') && !returnUrl.startsWith('//') ? returnUrl : '/app/';
-  return `${loginPath}?ReturnUrl=${encodeURIComponent(safeReturnUrl)}`;
-}
