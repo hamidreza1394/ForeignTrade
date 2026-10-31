@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "bootstrap/**", "feature/**", "fix/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore ForeignTrade.sln
+      - run: dotnet build ForeignTrade.sln --configuration Release --no-restore
+      - run: dotnet test ForeignTrade.sln --configuration Release --no-build
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: ClientApp/package.json
+      - run: npm install --no-audit --no-fund
+        working-directory: ClientApp
+      - run: npm run typecheck
+        working-directory: ClientApp
+      - run: npm test
+        working-directory: ClientApp
+      - run: npm run build
+        working-directory: ClientApp
