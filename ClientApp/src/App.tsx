@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   UnauthenticatedError,
-  buildLoginUrl,
   getSession,
   getWorkContext,
-  loginPath,
   logout,
   selectWorkContext,
 } from './api/client';
@@ -14,10 +12,12 @@ import { BlockedAccess } from './components/BlockedAccess';
 import { Dashboard } from './components/Dashboard';
 import { ErrorState, LoadingScreen } from './components/Feedback';
 import { SelectionLayout } from './components/SelectionLayout';
+import { LoginPage } from './components/LoginPage';
 import { WorkContextSelector } from './components/WorkContextSelector';
 
 type AppState =
   | { kind: 'loading' }
+  | { kind: 'unauthenticated' }
   | { kind: 'entering' }
   | { kind: 'redirecting' }
   | { kind: 'error'; message: string }
@@ -42,8 +42,7 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
   const handleUnauthenticated = useCallback(
     (error: unknown): boolean => {
       if (error instanceof UnauthenticatedError) {
-        setState({ kind: 'redirecting' });
-        navigate(buildLoginUrl(window.location));
+        setState({ kind: 'unauthenticated' });
         return true;
       }
       return false;
@@ -110,7 +109,7 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
 
   const handleLogout = useCallback(async () => {
     await logout();
-    navigate(loginPath);
+    setState({ kind: 'unauthenticated' });
   }, [navigate]);
 
   const handleLogoutFromScreen = useCallback(() => {
@@ -139,6 +138,10 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
   useEffect(() => {
     document.title = showsSelection ? 'بازرگانی خارجی — انتخاب شرکت و دوره' : 'بازرگانی خارجی — خانه';
   }, [showsSelection]);
+
+  if (state.kind === 'unauthenticated') {
+    return <LoginPage onSuccess={reload} />;
+  }
 
   if (state.kind === 'loading') {
     return (
