@@ -16,21 +16,21 @@ export type CompanySummary = {
   roleName: string;
 };
 
-export type FiscalPeriodStatus = 'Open' | 'Closed' | 'Archived';
+export type OperationalPeriodStatus = 'Open' | 'Closed' | 'Archived';
 
-export type FiscalPeriod = {
+export type OperationalPeriod = {
   id: string;
   title: string;
   /** Calendar date as stored by the server: ISO `yyyy-MM-dd` (Gregorian). */
   startDate: string;
   /** Calendar date as stored by the server: ISO `yyyy-MM-dd` (Gregorian). */
   endDate: string;
-  status: FiscalPeriodStatus;
+  status: OperationalPeriodStatus;
 };
 
 export type CompanyOverview = {
   company: CompanySummary;
-  fiscalPeriods: FiscalPeriod[];
+  periods: OperationalPeriod[];
 };
 
 /** What a working context allows: an open period is read-write, a closed one is read-only. */
@@ -40,20 +40,20 @@ export type AccessMode = 'readWrite' | 'readOnly';
  * A fiscal period as offered for selection; `isSelectable` and `accessMode` are decided by the
  * server (`accessMode` is `null` for a period that cannot be entered).
  */
-export type FiscalPeriodChoice = FiscalPeriod & { isSelectable: boolean; accessMode: AccessMode | null };
+export type OperationalPeriodChoice = OperationalPeriod & { isSelectable: boolean; accessMode: AccessMode | null };
 
 export type CompanyRelationshipType = 'parent' | 'subsidiary' | 'associate' | 'jointVenture' | 'jointVenturer' | 'investor' | 'investment' | 'groupMember' | 'independent' | 'unknown';
 
-export type CompanyChoice = CompanySummary & { fiscalPeriods: FiscalPeriodChoice[]; relationshipTypes: CompanyRelationshipType[] };
+export type CompanyChoice = CompanySummary & { periods: OperationalPeriodChoice[]; relationshipTypes: CompanyRelationshipType[] };
 
 export type SelectedContext = {
   company: CompanySummary;
-  fiscalPeriod: FiscalPeriodChoice;
+  period: OperationalPeriodChoice;
 };
 
 export type EntryMode = 'directEntry' | 'selectionRequired' | 'noCompany' | 'noEligiblePeriod';
 
-export type DirectSelection = { companyId: string; fiscalPeriodId: string };
+export type DirectSelection = { companyId: string; periodId: string };
 
 /**
  * The working context of the sign-in: the validated current choice (if any), the choices, and
@@ -114,9 +114,9 @@ function readIsoDate(source: JsonObject, key: string, what: string): string {
   return value;
 }
 
-const statuses: readonly FiscalPeriodStatus[] = ['Open', 'Closed', 'Archived'];
+const statuses: readonly OperationalPeriodStatus[] = ['Open', 'Closed', 'Archived'];
 
-function isFiscalPeriodStatus(value: string): value is FiscalPeriodStatus {
+function isOperationalPeriodStatus(value: string): value is OperationalPeriodStatus {
   return (statuses as readonly string[]).includes(value);
 }
 
@@ -151,19 +151,19 @@ export function parseCompanies(value: unknown): CompanySummary[] {
   return value.map(parseCompanySummary);
 }
 
-export function parseFiscalPeriod(value: unknown): FiscalPeriod {
+export function parseOperationalPeriod(value: unknown): OperationalPeriod {
   if (!isObject(value)) {
-    throw new ContractError('fiscalPeriod');
+    throw new ContractError('period');
   }
-  const status = readString(value, 'status', 'fiscalPeriod');
-  if (!isFiscalPeriodStatus(status)) {
-    throw new ContractError('fiscalPeriod.status');
+  const status = readString(value, 'status', 'period');
+  if (!isOperationalPeriodStatus(status)) {
+    throw new ContractError('period.status');
   }
   return {
-    id: readString(value, 'id', 'fiscalPeriod'),
-    title: readString(value, 'title', 'fiscalPeriod'),
-    startDate: readIsoDate(value, 'startDate', 'fiscalPeriod'),
-    endDate: readIsoDate(value, 'endDate', 'fiscalPeriod'),
+    id: readString(value, 'id', 'period'),
+    title: readString(value, 'title', 'period'),
+    startDate: readIsoDate(value, 'startDate', 'period'),
+    endDate: readIsoDate(value, 'endDate', 'period'),
     status,
   };
 }
@@ -176,15 +176,15 @@ function readBoolean(source: JsonObject, key: string, what: string): boolean {
   return value;
 }
 
-export function parseFiscalPeriodChoice(value: unknown): FiscalPeriodChoice {
+export function parseOperationalPeriodChoice(value: unknown): OperationalPeriodChoice {
   if (!isObject(value)) {
-    throw new ContractError('fiscalPeriod');
+    throw new ContractError('period');
   }
   const mode = value['accessMode'];
   if (mode !== null && mode !== 'readWrite' && mode !== 'readOnly') {
-    throw new ContractError('fiscalPeriod');
+    throw new ContractError('period');
   }
-  return { ...parseFiscalPeriod(value), isSelectable: readBoolean(value, 'isSelectable', 'fiscalPeriod'), accessMode: mode };
+  return { ...parseOperationalPeriod(value), isSelectable: readBoolean(value, 'isSelectable', 'period'), accessMode: mode };
 }
 
 const companyRelationshipTypes: readonly CompanyRelationshipType[] = ['parent', 'subsidiary', 'associate', 'jointVenture', 'jointVenturer', 'investor', 'investment', 'groupMember', 'independent', 'unknown'];
@@ -197,13 +197,13 @@ function parseCompanyRelationshipTypes(value: unknown): CompanyRelationshipType[
 }
 
 function parseCompanyChoice(value: unknown): CompanyChoice {
-  if (!isObject(value) || !Array.isArray(value['fiscalPeriods'])) {
+  if (!isObject(value) || !Array.isArray(value['periods'])) {
     throw new ContractError('companyChoice');
   }
   return {
     ...parseCompanySummary(value),
     relationshipTypes: parseCompanyRelationshipTypes(value['relationshipTypes']),
-    fiscalPeriods: value['fiscalPeriods'].map(parseFiscalPeriodChoice),
+    periods: value['periods'].map(parseOperationalPeriodChoice),
   };
 }
 
@@ -213,7 +213,7 @@ function parseSelectedContext(value: unknown): SelectedContext {
   }
   return {
     company: parseCompanySummary(value['company']),
-    fiscalPeriod: parseFiscalPeriodChoice(value['fiscalPeriod']),
+    period: parseOperationalPeriodChoice(value['period']),
   };
 }
 
@@ -239,7 +239,7 @@ export function parseWorkContext(value: unknown): WorkContext {
     }
     directSelection = {
       companyId: readString(direct, 'companyId', 'directSelection'),
-      fiscalPeriodId: readString(direct, 'fiscalPeriodId', 'directSelection'),
+      periodId: readString(direct, 'periodId', 'directSelection'),
     };
   }
   const current = value['current'];
@@ -253,12 +253,12 @@ export function parseWorkContext(value: unknown): WorkContext {
 }
 
 export function parseCompanyOverview(value: unknown): CompanyOverview {
-  if (!isObject(value) || !Array.isArray(value['fiscalPeriods'])) {
+  if (!isObject(value) || !Array.isArray(value['periods'])) {
     throw new ContractError('overview');
   }
   return {
     company: parseCompanySummary(value['company']),
-    fiscalPeriods: value['fiscalPeriods'].map(parseFiscalPeriod),
+    periods: value['periods'].map(parseOperationalPeriod),
   };
 }
 
