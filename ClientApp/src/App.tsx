@@ -69,7 +69,7 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
           try {
             const current = await selectWorkContext(
               context.directSelection.companyId,
-              context.directSelection.fiscalPeriodId,
+              context.directSelection.periodId,
             );
             if (!controller.signal.aborted) {
               setState({ kind: 'ready', session, context: { ...context, current }, selecting: false });
@@ -223,7 +223,7 @@ export function App({ navigate = defaultNavigate }: { navigate?: Navigate }) {
       onLogout={handleLogout}
     >
       <Dashboard
-        key={`${context.current.company.id}:${context.current.fiscalPeriod.id}`}
+        key={`${context.current.company.id}:${context.current.period.id}`}
         session={session}
         context={context.current}
         onUnauthenticated={handleUnauthenticated} />
