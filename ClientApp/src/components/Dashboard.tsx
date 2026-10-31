@@ -21,7 +21,7 @@ export function Dashboard({ session, context, onUnauthenticated }: DashboardProp
 
       <CompanyOverviewPanel
         companyId={context.company.id}
-        currentPeriodId={context.fiscalPeriod.id}
+        currentPeriodId={context.period.id}
         onUnauthenticated={onUnauthenticated}
       />
     </div>
