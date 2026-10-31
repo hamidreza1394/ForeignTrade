@@ -1,3 +1,4 @@
+using Xunit;
 using ForeignTrade.Server.Domain;
 
 namespace ForeignTrade.Server.Tests.Domain;
